@@ -9,34 +9,45 @@ restService.use(bodyParser.json());
 
 restService.post('/hook', function (req, res) {
 
-    var speech = 'empty speech';
+    console.log('hook request');
 
-    if (req.body) {
-        var requestBody = req.body;
+    try {
+        var speech = 'empty speech';
 
-        console.log(requestBody);
+        if (req.body) {
+            var requestBody = req.body;
 
-        if (requestBody.result) {
-            speech = '';
+            if (requestBody.result) {
+                speech = '';
 
-            if (requestBody.result.fulfillment) {
-                speech += requestBody.result.fulfillment.speech;
-                speech += ' ';
-            }
+                if (requestBody.result.fulfillment) {
+                    speech += requestBody.result.fulfillment.speech;
+                    speech += ' ';
+                }
 
-            if (requestBody.result.action) {
-                speech += 'action: ' + requestBody.result.action;
+                if (requestBody.result.action) {
+                    speech += 'action: ' + requestBody.result.action;
+                }
             }
         }
+
+        console.log('result: ', speech);
+
+        return res.json({
+            speech: speech,
+            displayText: speech,
+            source: 'apiai-webhook-sample'
+        });
+    } catch (err) {
+        console.error("Can't process request", err);
+
+        return res.status(400).json({
+            status: {
+                code: 400,
+                errorType: err.message
+            }
+        });
     }
-
-    console.log('result: ', speech);
-
-    return res.json({
-        speech: speech,
-        displayText: speech,
-        source: 'apiai-webhook-sample'
-    });
 });
 
 restService.listen((process.env.PORT || 5000), function () {
