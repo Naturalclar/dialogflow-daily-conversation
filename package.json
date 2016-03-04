@@ -1,0 +1,14 @@
+{
+  "name": "apiai-webhook-sample",
+  "version": "1.0.0",
+  "description": "Webhook sample",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Danil Skachkov <danil.skachkov@speaktoit.com> (https://api.ai)",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}
