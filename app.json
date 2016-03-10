@@ -1,7 +1,7 @@
 {
   "name": "API.AI webhook demonstration",
   "description": "API.AI webhook demonstration",
-  "repository": "https://github.com/xVir/apiai-webhook-sample",
+  "repository": "https://github.com/api-ai/apiai-webhook-sample",
   "logo": "https://node-js-sample.herokuapp.com/node.png",
   "keywords": ["api.ai", "natural language"]
 }
