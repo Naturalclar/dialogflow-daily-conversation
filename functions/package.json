@@ -1,0 +1,21 @@
+{
+  "name": "apiaiFirebaseFulfillment",
+  "description": "This is the default fulfillment for a API.AI agents using Cloud Functions for Firebase",
+  "version": "0.0.1",
+  "private": true,
+  "license": "Apache Version 2.0",
+  "author": "Google Inc.",
+  "engines": {
+    "node": "~6.0"
+  },
+  "scripts": {
+    "start": "firebase serve --only functions:apiaiFirebaseFulfillment",
+    "deploy": "firebase deploy --only functions:apiaiFirebaseFulfillment"
+  },
+  "dependencies": {
+    "actions-on-google": "^1.0.0",
+    "firebase-admin": "^4.2.1",
+    "firebase-functions": "^0.5.7",
+    "apiai": "^4.0.3"
+  }
+}
