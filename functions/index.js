@@ -15,11 +15,6 @@
 
 const functions = require('firebase-functions');
 
-// Default Action names for API.AI's welcome and fallback intents.
-const WELCOME_ACTION = 'input.welcome';
-const FALLBACK_ACTION = 'input.unknown';
-const DEFAULT_ACTION = 'default';
-
 exports.apiaiFirebaseFulfillment = functions.https.onRequest((request, response) => {
   // Log the request header and body coming from API.AI to help debug issues.
   // See https://api.ai/docs/fulfillment#request for more.
@@ -45,7 +40,7 @@ exports.apiaiFirebaseFulfillment = functions.https.onRequest((request, response)
   // Create a handler for each action defined in API.AI
   // and a default action handler for unknown actions
   const actionHandlers = {
-    WELCOME_ACTION: () => {
+    'input.welcome': () => {
       // The default welcome intent has been matched, Welcome the user.
       // Define the response users will hear
       responseJson.speech = 'Hello, welcome to my API.AI agent';
@@ -54,7 +49,7 @@ exports.apiaiFirebaseFulfillment = functions.https.onRequest((request, response)
       // Send the response to API.AI
       response.json(responseJson);
     },
-    FALLBACK_ACTION: () => {
+    'input.unknown': () => {
       // The default fallback intent has been matched, try to recover.
       // Define the response users will hear
       responseJson.speech = 'I\'m having trouble, can you try that again?';
@@ -63,7 +58,7 @@ exports.apiaiFirebaseFulfillment = functions.https.onRequest((request, response)
       // Send the response to API.AI
       response.json(responseJson);
     },
-    DEFAULT_ACTION: () => {
+    'default': () => {
       // This is executed if the action hasn't been defined.
       // Add a new case with your action to respond to your users' intent!
       responseJson.speech = 'This message is from API.AI\'s Cloud Functions for Firebase editor!';
@@ -86,7 +81,7 @@ exports.apiaiFirebaseFulfillment = functions.https.onRequest((request, response)
   // If the action is not handled by one of our defined action handlers
   // use the default action handler
   if (!actionHandlers[action]) {
-    action = DEFAULT_ACTION;
+    action = 'default';
   }
 
   // Map the action name to the correct action handler function and run the function
