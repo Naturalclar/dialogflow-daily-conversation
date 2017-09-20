@@ -1,6 +1,6 @@
 {
-  "name": "apiaiFirebaseFulfillment",
-  "description": "This is the default fulfillment for a API.AI agents using Cloud Functions for Firebase",
+  "name": "dialogflowFirebaseFulfillment",
+  "description": "This is the default fulfillment for a Dialogflow agents using Cloud Functions for Firebase",
   "version": "0.0.1",
   "private": true,
   "license": "Apache Version 2.0",
@@ -9,8 +9,8 @@
     "node": "~6.0"
   },
   "scripts": {
-    "start": "firebase serve --only functions:apiaiFirebaseFulfillment",
-    "deploy": "firebase deploy --only functions:apiaiFirebaseFulfillment"
+    "start": "firebase serve --only functions:dialogflowFirebaseFulfillment",
+    "deploy": "firebase deploy --only functions:dialogflowFirebaseFulfillment"
   },
   "dependencies": {
     "actions-on-google": "^1.0.0",
