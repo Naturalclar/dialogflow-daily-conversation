@@ -11,119 +11,142 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Dialogflow fulfillment getting started guide:
+// https://dialogflow.com/docs/how-tos/getting-started-fulfillment
+
 'use strict';
 
-const functions = require('firebase-functions');
+const functions = require('firebase-functions'); // Cloud Functions for Firebase library
+const DialogflowApp = require('actions-on-google').DialogflowApp; // Google Assistant helper library
+
+const googleAssistantRequest = 'google'; // Constant to identify Google Assistant requests
 
 exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
-  // Log the request header and body coming from Dialogflow to help debug issues.
-  // See https://dialogflow.com/docs/fulfillment#request for more.
   console.log('Request headers: ' + JSON.stringify(request.headers));
   console.log('Request body: ' + JSON.stringify(request.body));
 
-  // An action is a string used to identify what tasks needs to be done
-  // in fulfillment usally based on the corresponding intent.
-  // See https://dialogflow.com/docs/actions-and-parameters for more.
-  let action = request.body.result.action;
+  // An action is a string used to identify what needs to be done in fulfillment
+  let action = request.body.result.action; // https://dialogflow.com/docs/actions-and-parameters
 
   // Parameters are any entites that Dialogflow has extracted from the request.
-  // See https://dialogflow.com/docs/actions-and-parameters for more.
-  const parameters = request.body.result.parameters;
+  const parameters = request.body.result.parameters; // https://dialogflow.com/docs/actions-and-parameters
 
-  // Contexts are objects used to track and store conversation state and are identified by strings.
-  // See https://dialogflow.com/docs/contexts for more.
-  const contexts = request.body.result.contexts;
+  // Contexts are objects used to track and store conversation state
+  const inputContexts = request.body.result.contexts; // https://dialogflow.com/docs/contexts
 
-  // Initialize JSON we will use to respond to Dialogflow.
-  let responseJson = {};
+  // Get the request source (Google Assistant, Slack, API, etc) and initialize ApiAiApp
+  const requestSource = (request.body.originalRequest) ? request.body.originalRequest.source : undefined;
+  const app = new DialogflowApp({request: request, response: response});
 
-  // Create a handler for each action defined in Dialogflow
-  // and a default action handler for unknown actions
+  // Create handlers for Dialogflow actions as well as a 'default' handler
   const actionHandlers = {
+    // The default welcome intent has been matched, welcome the user (https://api.ai/docs/events#default_welcome_intent)
     'input.welcome': () => {
-      // The default welcome intent has been matched, Welcome the user.
-      // Define the response users will hear
-      responseJson.speech = 'Hello, welcome to my Dialogflow agent';
-      // Define the response users will see
-      responseJson.displayText = 'Hello! Welcome to my Dialogflow agent :-)';
-      // Send the response to Dialogflow
-      response.json(responseJson);
+      sendResponse('Hello, Welcome to my Dialogflow agent!'); // Send simple response to user
     },
+    // The default fallback intent has been matched, try to recover (https://api.ai/docs/intents#fallback_intents)
     'input.unknown': () => {
-      // The default fallback intent has been matched, try to recover.
-      // Define the response users will hear
-      responseJson.speech = 'I\'m having trouble, can you try that again?';
-      // Define the response users will see
-      responseJson.displayText = 'I\'m having trouble :-/ can you try that again?';
-      // Send the response to Dialogflow
-      response.json(responseJson);
+      sendResponse('I\'m having trouble, can you try that again?'); // Send simple response to user
     },
+    // Default handler for unknown or undefined actions
     'default': () => {
-      // This is executed if the action hasn't been defined.
-      // Add a new case with your action to respond to your users' intent!
-      responseJson.speech = 'This message is from Dialogflow\'s Cloud Functions for Firebase editor!';
-      responseJson.displayText = 'This is from Dialogflow\'s Cloud Functions for Firebase editor!';
-
-      // Optional: add rich messages for Google Assistant, Facebook and Slack defined below.
-      // Uncomment next line to enable. See https://dialogflow.com/docs/rich-messages for more.
-      //responseJson.data = richResponses;
-
-      // Optional: add outgoing context(s) for conversation branching and flow control.
-      // Uncomment next 2 lines to enable. See https://dialogflow.com/docs/contexts for more.
-      //let outgoingContexts = [{"name":"weather", "lifespan":2, "parameters":{"city":"Rome"}}];
-      //responseJson.contextOut = outgoingContexts;
-
-      // Send the response to Dialogflow
-      response.json(responseJson);
+      // Define complex response to send to the user
+      let responseToUser = {
+        //googleRichResponse: googleRichResponse, // Optional, uncomment to enable
+        //richResponses: richResponses, // Optional, uncomment to enable
+        //googleOutputContexts: ['weather', 2, { ['city']: 'rome' }], // Optional, uncomment to enable
+        //outputContexts: [{'name': 'weather', 'lifespan': 2, 'parameters': {'city': 'Rome'}}], // Optional, uncomment to enable
+        speech: 'This message is from Dialogflow\'s Cloud Functions for Firebase editor!', // spoken response
+        displayText: 'This is from Dialogflow\'s Cloud Functions for Firebase editor! :-)' // displayed response
+      };
+      sendResponse(responseToUser);
     }
   };
 
-  // If the action is not handled by one of our defined action handlers
-  // use the default action handler
+  // If undefined or unknown action use the default handler
   if (!actionHandlers[action]) {
     action = 'default';
   }
 
-  // Map the action name to the correct action handler function and run the function
+  // Run the proper handler function to handle the request from Dialogflow
   actionHandlers[action]();
+
+  // Function to send correctly formatted responses Dialogflow which are then sent to the user
+  function sendResponse (responseToUser) {
+    // if the response is a string send it
+    if (typeof responseToUser === 'string') {
+      // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
+      if (requestSource === googleAssistantRequest) {
+        app.ask(responseToUser); // Google Assistant response
+      } else {
+        let responseJson = {};
+        responseJson.speech = responseToUser; // spoken response
+        responseJson.displayText = responseToUser; // displayed response
+        response.json(responseJson); // Send response to Dialogflow
+      }
+    } else {
+      // If the response to the user includes rich responses or contexts send them to Dialogflow
+
+      // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
+      if (requestSource === googleAssistantRequest) {
+        // If speech or displayText is defined use it to respond
+        let googleResponse = app.buildRichResponse().addSimpleResponse({
+          speech: responseToUser.speech || responseToUser.displayText,
+          displayText: responseToUser.displayText || responseToUser.speech
+        });
+
+        // Optional: Overwrite previous response with rich response
+        if (responseToUser.googleRichResponse) {
+          googleResponse = responseToUser.googleRichResponse;
+        }
+
+        // Optional: add contexts (https://dialogflow.com/docs/contexts)
+        app.setContext(...responseToUser.googleOutputContexts);
+
+        app.ask(googleResponse); // Send response to Dialogflow
+      } else {
+        let responseJson = {};
+
+        // If speech or displayText is defined, use it to respond (if one isn't defined use the other's value)
+        responseJson.speech = responseToUser.speech || responseToUser.displayText;
+        responseJson.displayText = responseToUser.displayText || responseToUser.speech;
+
+        // Optional: add rich messages for integrations (https://dialogflow.com/docs/rich-messages)
+        responseJson.data = responseToUser.richResponses;
+
+        // Optional: add contexts (https://dialogflow.com/docs/contexts)
+        responseJson.contextOut = responseToUser.outputContexts;
+
+        response.json(responseJson); // Send response to Dialogflow
+      }
+    }
+  }
 });
 
-// JSON for Rich responses for Google Assistant, Facebook and Slack
+// Construct rich response for Google Assistant
+const app = new DialogflowApp();
+const googleRichResponse = app.buildRichResponse()
+  .addSimpleResponse('This is the first simple response for Google Assistant')
+  .addSuggestions(
+    ['Suggestion Chip', 'Another Suggestion Chip'])
+    // Create a basic card and add it to the rich response
+  .addBasicCard(app.buildBasicCard(`This is a basic card.  Text in a
+ basic card can include "quotes" and most other unicode characters
+ including emoji 📱.  Basic cards also support some markdown
+ formatting like *emphasis* or _italics_, **strong** or __bold__,
+ and ***bold itallic*** or ___strong emphasis___ as well as other things
+ like line  \nbreaks`) // Note the two spaces before '\n' required for a
+                        // line break to be rendered in the card
+    .setSubtitle('This is a subtitle')
+    .setTitle('Title: this is a title')
+    .addButton('This is a button', 'https://assistant.google.com/')
+    .setImage('https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
+      'Image alternate text'))
+  .addSimpleResponse({ speech: 'This is another simple response',
+    displayText: 'This is the another simple response 💁' });
+
+// Rich responses for both Slack and Facebook
 const richResponses = {
-  'google': {
-    'expectUserResponse': true,
-    'isSsml': false,
-    'noInputPrompts': [],
-    'richResponse': {
-      'items': [
-        {
-          'simpleResponse': {
-            'textToSpeech': 'This is a simple speech response for Actions on Google.',
-            'displayText': 'This is a simple display text response for Action on Google.'
-          }
-        },
-        {
-          'basicCard': {
-            'title': 'Title: this is a title',
-            'subtitle': 'This is a subtitle',
-            'formattedText': 'This is a basic card.  Text in a basic card can include \'quotes\' and most other unicode characters including emoji 📱.  Basi cards also support some markdown formatting like *emphasis* or _italics_, **strong** or __bold__, and ***bold itallic*** or ___strong emphasis___ as well as other things like line  \nbreaks',
-            'image': {
-              'url': 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
-              'accessibilityText': 'Image alternate text'
-            },
-            'buttons': [
-              {
-                'title': 'This is a button',
-                'openUrlAction': {
-                  'url': 'https://assistant.google.com/'
-                }
-              }
-            ]
-          }
-        }
-      ]
-    }
-  },
   'slack': {
     'text': 'This is a text response for Slack.',
     'attachments': [
