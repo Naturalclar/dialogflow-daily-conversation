@@ -34,32 +34,51 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   // Contexts are objects used to track and store conversation state
   const inputContexts = request.body.result.contexts; // https://dialogflow.com/docs/contexts
 
-  // Get the request source (Google Assistant, Slack, API, etc) and initialize ApiAiApp
+  // Get the request source (Google Assistant, Slack, API, etc) and initialize DialogflowApp
   const requestSource = (request.body.originalRequest) ? request.body.originalRequest.source : undefined;
   const app = new DialogflowApp({request: request, response: response});
 
   // Create handlers for Dialogflow actions as well as a 'default' handler
   const actionHandlers = {
-    // The default welcome intent has been matched, welcome the user (https://api.ai/docs/events#default_welcome_intent)
+    // The default welcome intent has been matched, welcome the user (https://dialogflow.com/docs/events#default_welcome_intent)
     'input.welcome': () => {
-      sendResponse('Hello, Welcome to my Dialogflow agent!'); // Send simple response to user
+      // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
+      if (requestSource === googleAssistantRequest) {
+        sendGoogleResponse('Hello, Welcome to my Dialogflow agent!'); // Send simple response to user
+      } else {
+        sendResponse('Hello, Welcome to my Dialogflow agent!'); // Send simple response to user
+      }
+
     },
-    // The default fallback intent has been matched, try to recover (https://api.ai/docs/intents#fallback_intents)
+    // The default fallback intent has been matched, try to recover (https://dialogflow.com/docs/intents#fallback_intents)
     'input.unknown': () => {
-      sendResponse('I\'m having trouble, can you try that again?'); // Send simple response to user
+      // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
+      if (requestSource === googleAssistantRequest) {
+        sendGoogleResponse('I\'m having trouble, can you try that again?'); // Send simple response to user
+      } else {
+        sendResponse('I\'m having trouble, can you try that again?'); // Send simple response to user
+      }
     },
     // Default handler for unknown or undefined actions
     'default': () => {
-      // Define complex response to send to the user
-      let responseToUser = {
-        //googleRichResponse: googleRichResponse, // Optional, uncomment to enable
-        //richResponses: richResponses, // Optional, uncomment to enable
-        //googleOutputContexts: ['weather', 2, { ['city']: 'rome' }], // Optional, uncomment to enable
-        //outputContexts: [{'name': 'weather', 'lifespan': 2, 'parameters': {'city': 'Rome'}}], // Optional, uncomment to enable
-        speech: 'This message is from Dialogflow\'s Cloud Functions for Firebase editor!', // spoken response
-        displayText: 'This is from Dialogflow\'s Cloud Functions for Firebase editor! :-)' // displayed response
-      };
-      sendResponse(responseToUser);
+      // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
+      if (requestSource === googleAssistantRequest) {
+        let responseToUser = {
+          //googleRichResponse: googleRichResponse, // Optional, uncomment to enable
+          //googleOutputContexts: ['weather', 2, { ['city']: 'rome' }], // Optional, uncomment to enable
+          speech: 'This message is from Dialogflow\'s Cloud Functions for Firebase editor!', // spoken response
+          displayText: 'This is from Dialogflow\'s Cloud Functions for Firebase editor! :-)' // displayed response
+        };
+        sendGoogleResponse(responseToUser);
+      } else {
+        let responseToUser = {
+          //richResponses: richResponses, // Optional, uncomment to enable
+          //outputContexts: [{'name': 'weather', 'lifespan': 2, 'parameters': {'city': 'Rome'}}], // Optional, uncomment to enable
+          speech: 'This message is from Dialogflow\'s Cloud Functions for Firebase editor!', // spoken response
+          displayText: 'This is from Dialogflow\'s Cloud Functions for Firebase editor! :-)' // displayed response
+        };
+        sendResponse(responseToUser);
+      }
     }
   };
 
@@ -71,54 +90,54 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   // Run the proper handler function to handle the request from Dialogflow
   actionHandlers[action]();
 
-  // Function to send correctly formatted responses Dialogflow which are then sent to the user
-  function sendResponse (responseToUser) {
-    // if the response is a string send it
+    // Function to send correctly formatted Google Assistant responses to Dialogflow which are then sent to the user
+  function sendGoogleResponse (responseToUser) {
     if (typeof responseToUser === 'string') {
-      // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
-      if (requestSource === googleAssistantRequest) {
-        app.ask(responseToUser); // Google Assistant response
-      } else {
-        let responseJson = {};
-        responseJson.speech = responseToUser; // spoken response
-        responseJson.displayText = responseToUser; // displayed response
-        response.json(responseJson); // Send response to Dialogflow
+      app.ask(responseToUser); // Google Assistant response
+    } else {
+      // If speech or displayText is defined use it to respond
+      let googleResponse = app.buildRichResponse().addSimpleResponse({
+        speech: responseToUser.speech || responseToUser.displayText,
+        displayText: responseToUser.displayText || responseToUser.speech
+      });
+
+      // Optional: Overwrite previous response with rich response
+      if (responseToUser.googleRichResponse) {
+        googleResponse = responseToUser.googleRichResponse;
       }
+
+      // Optional: add contexts (https://dialogflow.com/docs/contexts)
+      if (responseToUser.googleOutputContexts) {
+        app.setContext(...responseToUser.googleOutputContexts);
+      }
+
+      app.ask(googleResponse); // Send response to Dialogflow and Google Assistant
+    }
+  }
+
+  // Function to send correctly formatted responses to Dialogflow which are then sent to the user
+  function sendResponse (responseToUser) {
+    // if the response is a string send it as a response to the user
+    if (typeof responseToUser === 'string') {
+      let responseJson = {};
+      responseJson.speech = responseToUser; // spoken response
+      responseJson.displayText = responseToUser; // displayed response
+      response.json(responseJson); // Send response to Dialogflow
     } else {
       // If the response to the user includes rich responses or contexts send them to Dialogflow
+      let responseJson = {};
 
-      // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
-      if (requestSource === googleAssistantRequest) {
-        // If speech or displayText is defined use it to respond
-        let googleResponse = app.buildRichResponse().addSimpleResponse({
-          speech: responseToUser.speech || responseToUser.displayText,
-          displayText: responseToUser.displayText || responseToUser.speech
-        });
+      // If speech or displayText is defined, use it to respond (if one isn't defined use the other's value)
+      responseJson.speech = responseToUser.speech || responseToUser.displayText;
+      responseJson.displayText = responseToUser.displayText || responseToUser.speech;
 
-        // Optional: Overwrite previous response with rich response
-        if (responseToUser.googleRichResponse) {
-          googleResponse = responseToUser.googleRichResponse;
-        }
+      // Optional: add rich messages for integrations (https://dialogflow.com/docs/rich-messages)
+      responseJson.data = responseToUser.richResponses;
 
-        // Optional: add contexts (https://dialogflow.com/docs/contexts)
-        app.setContext(...responseToUser.googleOutputContexts);
+      // Optional: add contexts (https://dialogflow.com/docs/contexts)
+      responseJson.contextOut = responseToUser.outputContexts;
 
-        app.ask(googleResponse); // Send response to Dialogflow
-      } else {
-        let responseJson = {};
-
-        // If speech or displayText is defined, use it to respond (if one isn't defined use the other's value)
-        responseJson.speech = responseToUser.speech || responseToUser.displayText;
-        responseJson.displayText = responseToUser.displayText || responseToUser.speech;
-
-        // Optional: add rich messages for integrations (https://dialogflow.com/docs/rich-messages)
-        responseJson.data = responseToUser.richResponses;
-
-        // Optional: add contexts (https://dialogflow.com/docs/contexts)
-        responseJson.contextOut = responseToUser.outputContexts;
-
-        response.json(responseJson); // Send response to Dialogflow
-      }
+      response.json(responseJson); // Send response to Dialogflow
     }
   }
 });
