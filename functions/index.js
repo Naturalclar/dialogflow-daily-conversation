@@ -214,7 +214,7 @@ const richResponsesV1 = {
 function processV2Request (request, response) {
   // An action is a string used to identify what needs to be done in fulfillment
   let action = (request.body.queryResult.action) ? request.body.queryResult.action : 'default';
-  // Parameters are any entites that Dialogflow has extracted from the request.
+  // Parameters are any entities that Dialogflow has extracted from the request.
   let parameters = request.body.queryResult.parameters || {}; // https://dialogflow.com/docs/actions-and-parameters
   // Contexts are objects used to track and store conversation state
   let inputContexts = request.body.queryResult.contexts; // https://dialogflow.com/docs/contexts
