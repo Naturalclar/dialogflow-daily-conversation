@@ -4,12 +4,23 @@ This webhook template sets up everything you need to build your fulfillment for 
 
 ## Setup Instructions
 
-### Steps
-1. Deploy the fulfillment webhook provided in the functions folder using [Google Cloud Functions for Firebase](https://firebase.google.com/docs/functions/):
-   1. Follow the instructions to [set up and initialize Firebase SDK for Cloud Functions](https://firebase.google.com/docs/functions/get-started#set_up_and_initialize_functions_sdk). Make sure to select the project that you have previously generated in the Actions on Google Console and to reply `N` when asked to overwrite existing files by the Firebase CLI.
-   1. Navigate to the <code>firebase/functions</code> directory and run <code>npm install</code>.
-   1. Run `firebase deploy --only functions` and take note of the endpoint where the fulfillment webhook has been published. It should look like `Function URL (yourAction): https://${REGION}-${PROJECT}.cloudfunctions.net/yourAction`
-1. Go to the Dialogflow console and select *Fulfillment* from the left navigation menu.
-1. Enable *Webhook*, set the value of *URL* to the `Function URL` from the previous step, then click *Save*.
-1. Select *Intents* from the left navigation menu. Select the `Default Welcome Intent` intent, scroll down to the end of the page and click *Fulfillment*, check *Use webhook* and then click *Save*. Repeat this step for the Default Fallback Intent.  This will allow you to have your intents be a basic webhook intent to test.
-1. Build action handlers for all of your other Dialogflow actions to fulfill your users requests
+### Option #1: Dialogflow Inline Editor (recommended)
+1. [Enable the Cloud Function for Firebase inline editor](https://dialogflow.com/docs/fulfillment#cloud_functions_for_firebase)
+1. Copy this code in `functions/index.js` the `index.js` file in the Dialogflow Cloud Function for Firebase inline editor.
+1. Copy this code in `functions/package.json` the `package.json` file in the Dialogflow Cloud Function for Firebase inline editor.
+1. Click `Deploy`
+
+### Option #2: Firebase CLI
+1. Run `git clone https://github.com/dialogflow/fulfillment-webhook-nodejs.git` and `cd` to the `functions` directory
+1. Run `npm install`
+1. Install the Firebase CLI by running `npm install -g firebase-tools`
+1. Login to your Google account with `firebase login`
+1. Add your project to the sample with `firebase use [project ID]` [find your project ID here](https://dialogflow.com/docs/agents#settings)
+1. Run `firebase deploy --only functions:dialogflowFirebaseFulfillment`
+1. Paste the URL into your Dialogflow agent's fulfillment and click `Save`
+
+## License
+See [LICENSE](LICENSE).
+
+## Terms
+Your use of this sample is subject to, and by using or downloading the sample files you agree to comply with, the [Google APIs Terms of Service](https://developers.google.com/terms/).
