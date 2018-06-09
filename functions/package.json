@@ -13,10 +13,12 @@
     "deploy": "firebase deploy --only functions:dialogflowFirebaseFulfillment"
   },
   "dependencies": {
-    "actions-on-google": "2.0.0-alpha.3",
-    "firebase-admin": "^4.2.1",
-    "firebase-functions": "^0.5.7",
-    "dialogflow": "^0.1.0",
-    "dialogflow-fulfillment": "0.3.0-beta.2"
+    "actions-on-google": "2.1.1",
+    "dialogflow": "^0.4.0",
+    "dialogflow-fulfillment": "0.3.0-beta.2",
+    "firebase-admin": "^5.12.1",
+    "firebase-functions": "^1.0.2",
+    "moment": "^2.22.2",
+    "moment-timezone": "^0.5.17"
   }
 }

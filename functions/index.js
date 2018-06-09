@@ -19,6 +19,8 @@
 const functions = require('firebase-functions');
 const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
+const moment = require('moment');
+const weatherApi = require('./apps/weather');
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
@@ -28,12 +30,35 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
 
   function welcome (agent) {
-    agent.add(`Welcome to my agent!`);
+    const timestamp = moment();
+    agent.add(`Welcome to my agent! Current time is ${timestamp}`);
   }
 
   function fallback (agent) {
     agent.add(`I didn't understand`);
     agent.add(`I'm sorry, can you try again?`);
+  }
+
+  function weather (agent) {
+    const { parameters } = request.body.queryResult;
+    let {date} = parameters;
+    const city = parameters['geo-city'];
+    const country = parameters['geo-country']; 
+    const state = parameters['geo-state-us'];
+    const query = `${city}, ${state}, ${country}`;
+    if (date === '') {
+      date = 'today';
+    }
+    try {
+      weatherApi.callWeatherApi(query, date).then((output) => {
+      const newOutput = output.replace(/°/gi, " ");
+      agent.add(newOutput);
+      });
+    } 
+    catch(err) {
+      console.log(`Weather App Error: ${err}`);
+      agent.add( `I don't know the weather at ${city}, but I hope it's good!`);
+    };
   }
 
   // // Uncomment and edit to make your own intent handler
@@ -67,6 +92,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   let intentMap = new Map();
   intentMap.set('Default Welcome Intent', welcome);
   intentMap.set('Default Fallback Intent', fallback);
+  intentMap.set('Get Weather', weather);
   // intentMap.set('<INTENT_NAME_HERE>', yourFunctionHandler);
   // intentMap.set('<INTENT_NAME_HERE>', googleAssistantHandler);
   agent.handleRequest(intentMap);
