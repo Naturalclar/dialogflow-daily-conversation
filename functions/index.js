@@ -40,6 +40,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   }
 
   function weather (agent) {
+    console.log(`Intent: GetWeather`);
     const { parameters } = request.body.queryResult;
     let {date} = parameters;
     const city = parameters['geo-city'];
@@ -51,8 +52,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     }
     try {
       weatherApi.callWeatherApi(query, date).then((output) => {
-      const newOutput = output.replace(/°/gi, " ");
-      agent.add(newOutput);
+        console.log(`Weather API Response: ${output}`);
+        const newOutput = output.replace(/°/gi, " ");
+        agent.add(newOutput);
       });
     } 
     catch(err) {

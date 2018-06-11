@@ -1,4 +1,4 @@
-const http = require('http');
+const fetch = require('node-fetch');
 const wwoApiKey = "0a6aca0d4c5e4b8c8f6201342181605";
 const host = 'api.worldweatheronline.com';
 
@@ -9,6 +9,29 @@ const callWeatherApi = (city, date) => {
       '&q=' + encodeURIComponent(city) + '&key=' + wwoApiKey + '&date=' + date;
     console.log('API Request: ' + host + path);
 
+
+    const url = `http://${host}${path}`;
+    fetch(url)
+      .then(response => response.json())
+      .catch(error => {
+        console.log(`Error calling the weather API: ${error}`)
+        reject();
+      })
+      .then( (response) => {
+        let forecast = response['data']['weather'][0];
+        let location = response['data']['request'][0];
+        let conditions = response['data']['current_condition'][0];
+        let currentConditions = conditions['weatherDesc'][0]['value'];
+
+        let output = `Current conditions in the ${location['type']} 
+        ${location['query']} are ${currentConditions} with a projected high of
+        ${forecast['maxtempC']}°C or ${forecast['maxtempF']}°F and a low of 
+        ${forecast['mintempC']}°C or ${forecast['mintempF']}°F on 
+        ${forecast['date']}.`;
+        resolve(output);
+      });
+
+    /*  
     // Make the HTTP request to get the weather
     http.get({host: host, path: path}, (res) => {
       let body = ''; // var to store the response chunks
@@ -36,7 +59,7 @@ const callWeatherApi = (city, date) => {
         console.log(`Error calling the weather API: ${error}`)
         reject();
       });
-    });
+    });*/
   });
 }
 
