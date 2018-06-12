@@ -6,7 +6,8 @@
       "es7"
     ],
     "module": "commonjs",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "noImplicitAny": true
   },
   "include":[
     "apps/**/*"
