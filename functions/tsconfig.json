@@ -1,0 +1,17 @@
+{ 
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "es7"
+    ],
+    "module": "commonjs",
+    "moduleResolution": "node"
+  },
+  "include":[
+    "apps/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
