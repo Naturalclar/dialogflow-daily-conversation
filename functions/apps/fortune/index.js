@@ -22,9 +22,7 @@ var get = function (sign) {
         return 'Error: Unknown sunsign';
     }
     var url = "https://" + host + path + sign;
-    return node_fetch_1.default(url, {
-        method: 'get',
-    })
+    return node_fetch_1.default(url)
         .then(function (res) { return res.json(); })
         .catch(function (err) {
         console.log("Error calling the Fortune App: " + err);

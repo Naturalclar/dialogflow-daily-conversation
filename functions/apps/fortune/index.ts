@@ -25,9 +25,7 @@ const get = (sign: string) => {
 
   const url = `https://${host}${path}${sign}`;
 
-  return fetch(url, {
-    method: 'get',
-  })
+  return fetch(url)
     .then(res => res.json())
     .catch(err => {
       console.log(`Error calling the Fortune App: ${err}`);
