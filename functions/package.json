@@ -1,6 +1,6 @@
 {
-  "name": "dialogflowFirebaseFulfillment",
-  "description": "This is the default fulfillment for a Dialogflow agents using Cloud Functions for Firebase",
+  "name": "chatbot-daily-conversation",
+  "description": "Webhook for Dialogflow fulfillment - Daily Conversation",
   "version": "0.0.1",
   "private": true,
   "license": "Apache Version 2.0",

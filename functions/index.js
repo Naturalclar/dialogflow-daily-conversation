@@ -51,10 +51,9 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
       date = 'today';
     }
     try {
-      weatherApi.callWeatherApi(query, date).then((output) => {
+      weatherApi.getWeather(query, date).then((output) => {
         console.log(`Weather API Response: ${output}`);
-        const newOutput = output.replace(/°/gi, " ");
-        agent.add(newOutput);
+        agent.add(output);
       });
     } 
     catch(err) {

@@ -2,65 +2,32 @@ const fetch = require('node-fetch');
 const wwoApiKey = "0a6aca0d4c5e4b8c8f6201342181605";
 const host = 'api.worldweatheronline.com';
 
-const callWeatherApi = (city, date) => {
-  return new Promise((resolve, reject) => {
-    // Create the path for the HTTP request to get the weather
-    let path = '/premium/v1/weather.ashx?format=json&num_of_days=1' +
-      '&q=' + encodeURIComponent(city) + '&key=' + wwoApiKey + '&date=' + date;
-    console.log('API Request: ' + host + path);
+const getWeather = (city, date) => {
+  const path = `/premium/v1/weather.ashx?format=json&num_of_days=1&q=${encodeURIComponent(city)}&key=${wwoApiKey}&date=${date}`;
+  const url = `http://${host}${path}`;
 
+  return fetch(url)
+    .then(res => res.json())
+    .catch(err => {
+      console.log(`Error calling the weather API: ${err}`);
+      return err;
+    })
+    .then((response) => {
+      let forecast = response['data']['weather'][0];
+      let location = response['data']['request'][0];
+      let conditions = response['data']['current_condition'][0];
+      let currentConditions = conditions['weatherDesc'][0]['value'];
 
-    const url = `http://${host}${path}`;
-    fetch(url)
-      .then(response => response.json())
-      .catch(error => {
-        console.log(`Error calling the weather API: ${error}`)
-        reject();
-      })
-      .then( (response) => {
-        let forecast = response['data']['weather'][0];
-        let location = response['data']['request'][0];
-        let conditions = response['data']['current_condition'][0];
-        let currentConditions = conditions['weatherDesc'][0]['value'];
-
-        let output = `Current conditions in the ${location['type']} 
-        ${location['query']} are ${currentConditions} with a projected high of
-        ${forecast['maxtempC']}°C or ${forecast['maxtempF']}°F and a low of 
-        ${forecast['mintempC']}°C or ${forecast['mintempF']}°F on 
-        ${forecast['date']}.`;
-        resolve(output);
-      });
-
-    /*  
-    // Make the HTTP request to get the weather
-    http.get({host: host, path: path}, (res) => {
-      let body = ''; // var to store the response chunks
-      res.on('data', (d) => { body += d; }); // store each response chunk
-      res.on('end', () => {
-        // After all the data has been received parse the JSON for desired data
-        let response = JSON.parse(body);
-        let forecast = response['data']['weather'][0];
-        let location = response['data']['request'][0];
-        let conditions = response['data']['current_condition'][0];
-        let currentConditions = conditions['weatherDesc'][0]['value'];
-
-        // Create response
-        let output = `Current conditions in the ${location['type']} 
-        ${location['query']} are ${currentConditions} with a projected high of
-        ${forecast['maxtempC']}°C or ${forecast['maxtempF']}°F and a low of 
-        ${forecast['mintempC']}°C or ${forecast['mintempF']}°F on 
-        ${forecast['date']}.`;
-
-        // Resolve the promise with the output text
-        console.log(output);
-        resolve(output);
-      });
-      res.on('error', (error) => {
-        console.log(`Error calling the weather API: ${error}`)
-        reject();
-      });
-    });*/
-  });
+      // Line spoken by Pepper
+      const pepper = `The weather in ${location['type']} of ${location['query']} on ${forecast['date']} is 
+      ${currentConditions}, with a projected high of ${forecast['maxtempF']} degrees farenheit and a 
+      low of ${forecast['mintempF']} degrees farenheit.`;
+      
+      // Value displayed on the screen
+      const display = pepper.replace(/degrees farenheit/g, 'F');
+      
+      return `${pepper}||${display}`;
+    });
 }
 
-module.exports.callWeatherApi = callWeatherApi;
+module.exports.getWeather = getWeather;
