@@ -20,7 +20,7 @@ const Sunsigns = [
 
 const get = (sign: string) => {
   if (!Sunsigns.includes(sign)){
-    return 'Error: Unknown sunsign';
+    return 'Fortune App Error: Unknown sunsign';
   }
 
   const url = `https://${host}${path}${sign}`;
@@ -28,7 +28,7 @@ const get = (sign: string) => {
   return fetch(url)
     .then(res => res.json())
     .catch(err => {
-      console.log(`Error calling the Fortune App: ${err}`);
+      console.log(`Fortune App Fetch Error: ${err}`);
       return err;
   });
 }

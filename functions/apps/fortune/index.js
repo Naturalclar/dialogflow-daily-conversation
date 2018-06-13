@@ -19,13 +19,13 @@ var Sunsigns = [
 ];
 var get = function (sign) {
     if (!Sunsigns.includes(sign)) {
-        return 'Error: Unknown sunsign';
+        return 'Fortune App Error: Unknown sunsign';
     }
     var url = "https://" + host + path + sign;
     return node_fetch_1.default(url)
         .then(function (res) { return res.json(); })
         .catch(function (err) {
-        console.log("Error calling the Fortune App: " + err);
+        console.log("Fortune App Fetch Error: " + err);
         return err;
     });
 };

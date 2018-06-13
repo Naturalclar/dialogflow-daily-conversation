@@ -21,6 +21,8 @@ const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
 const moment = require('moment');
 const weatherApi = require('./apps/weather');
+const newsApi = require('./apps/news');
+const fortuneApi = require('./apps/fortune');
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
@@ -28,6 +30,8 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   const agent = new WebhookClient({ request, response });
   console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
+  const { parameters } = request.body.queryResult;
+
 
   function welcome (agent) {
     const timestamp = moment();
@@ -39,9 +43,28 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     agent.add(`I'm sorry, can you try again?`);
   }
 
+  function fortune (agent) {
+    const { sunsign } = parameters;
+    // TODO: create response
+    agent.add('This is a placeholder for horoscope');
+  }
+
+  function news (agent) {
+    const { query } = parameters;
+    // TODO: create response
+    agent.add('This is a placeholder for news');
+  }
+
+  function trivia (agent) {
+    // TODO: create response
+    // Create a list using google assistant list
+    // with 4 choices being the answers to the multiple choice question
+    // create a new follow-up intent for correct and incorrect answer?
+    agent.add('This is a placeholder for trivia');
+  }
+
   function weather (agent) {
     console.log(`Intent: GetWeather`);
-    const { parameters } = request.body.queryResult;
     let {date} = parameters;
     const city = parameters['geo-city'];
     const country = parameters['geo-country']; 
@@ -62,39 +85,13 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     };
   }
 
-  // // Uncomment and edit to make your own intent handler
-  // // uncomment `intentMap.set('your intent name here', yourFunctionHandler);`
-  // // below to get this function to be run when a Dialogflow intent is matched
-  // function yourFunctionHandler(agent) {
-  //   agent.add(`This message is from Dialogflow's Cloud Functions for Firebase inline editor!`);
-  //   agent.add(new Card({
-  //       title: `Title: this is a card title`,
-  //       imageUrl: 'https://dialogflow.com/images/api_home_laptop.svg',
-  //       text: `This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`,
-  //       buttonText: 'This is a button',
-  //       buttonUrl: 'https://docs.dialogflow.com/'
-  //     })
-  //   );
-  //   agent.add(new Suggestion(`Quick Reply`));
-  //   agent.add(new Suggestion(`Suggestion`));
-  //   agent.setContext({ name: 'weather', lifespan: 2, parameters: { city: 'Rome' }});
-  // }
-
-  // // Uncomment and edit to make your own Google Assistant intent handler
-  // // uncomment `intentMap.set('your intent name here', googleAssistantHandler);`
-  // // below to get this function to be run when a Dialogflow intent is matched
-  // function googleAssistantHandler(agent) {
-  //   let conv = agent.conv(); // Get Actions on Google library conv instance
-  //   conv.ask('Hello from the Actions on Google client library!') // Use Actions on Google library
-  //   agent.add(conv); // Add Actions on Google library responses to your agent's response
-  // }
-
   // Run the proper function handler based on the matched Dialogflow intent name
   let intentMap = new Map();
   intentMap.set('Default Welcome Intent', welcome);
   intentMap.set('Default Fallback Intent', fallback);
   intentMap.set('Get Weather', weather);
-  // intentMap.set('<INTENT_NAME_HERE>', yourFunctionHandler);
-  // intentMap.set('<INTENT_NAME_HERE>', googleAssistantHandler);
+  intentMap.set('Get News', news);
+  intentMap.set('Get Fortune', fortune);
+  intentMap.set('Get Trivia', trivia);
   agent.handleRequest(intentMap);
 });
