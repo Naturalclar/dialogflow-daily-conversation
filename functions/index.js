@@ -50,8 +50,11 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
 
     return fortuneApi.get(sunsign)
       .then(
-        (data)=> {
-          agent.add(data);
+        (data)=> {     
+           // Returns in the form of ['Text'], slice the braces.
+          const horoscope = data.horoscope.slice(2,-2);
+          console.log(`Fortune Result: ${horoscope}`)
+          agent.add(horoscope);
         },
         (err) => {
           agent.add(err);
@@ -62,7 +65,17 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   function news(agent) {
     const { query } = parameters;
     // TODO: create response
-    agent.add('This is a placeholder for news');
+    return newsApi.getNews(query)
+      .then(
+        (data) => {
+          const newsheader = `Here's an article from ${data.source}, by ${data.author}, titled ${data.title}.`
+          agent.add(newsheader);
+          agent.add(data.description);
+        },
+        (err) => {
+          agent.add(err);
+        }
+      )
   }
 
   function trivia(agent) {

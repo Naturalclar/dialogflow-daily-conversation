@@ -8,11 +8,16 @@ var host = 'newsapi.org';
 var getNews = function (query) {
     var path = "/v2/everything?q=" + query + "&apiKey=" + apikey;
     var url = "https://" + host + path;
-    return node_fetch_1.default(url)
-        .then(function (res) { return res.json(); })
-        .catch(function (err) {
-        console.log("Error calling the News App: " + err);
-        return err;
+    return new Promise(function (resolve, reject) {
+        node_fetch_1.default(url)
+            .then(function (res) { return res.json(); })
+            .catch(function (err) {
+            console.log("Error calling the News App: " + err);
+            reject(err);
+        })
+            .then(function (response) {
+            resolve(response.articles[0]);
+        });
     });
 };
 module.exports.getNews = getNews;

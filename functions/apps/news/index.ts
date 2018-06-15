@@ -9,12 +9,18 @@ const getNews = (query:string) => {
   const path = `/v2/everything?q=${query}&apiKey=${apikey}`;
   const url = `https://${host}${path}`;
 
-  return fetch(url)
+  return new Promise((resolve, reject) => {
+    
+    fetch(url)
     .then(res => res.json())
     .catch(err => {
       console.log(`Error calling the News App: ${err}`);
-      return err;
+      reject(err);
+    })
+    .then(response => {
+      resolve(response.articles[0]);
     });
+  });
 }
 
 module.exports.getNews = getNews;
