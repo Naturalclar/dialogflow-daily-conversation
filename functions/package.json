@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "firebase serve --only functions:dialogflowFirebaseFulfillment",
-    "deploy": "firebase deploy --only functions:dialogflowFirebaseFulfillment",
+    "deploy": "firebase deploy --only functions",
     "test": "jest",
     "build": "tsc -p ./tsconfig.json"
   },

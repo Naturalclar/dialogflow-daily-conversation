@@ -1,5 +1,4 @@
 import fetch from 'node-fetch';
-
 const host = 'horoscope-api.herokuapp.com';
 const path = '/horoscope/today/';
 
@@ -18,18 +17,26 @@ const Sunsigns = [
   'Capricorn'
 ]
 
-const get = (sign: string) => {
+const get = (sign: string):Promise<string> => {
   if (!Sunsigns.includes(sign)){
-    return 'Fortune App Error: Unknown sunsign';
+    throw `Fortune App Error: Unknown sunsign, ${sign}`;
   }
 
   const url = `https://${host}${path}${sign}`;
 
-  return fetch(url)
+  return new Promise((resolve, reject) => {
+    fetch(url)
     .then(res => res.json())
     .catch(err => {
       console.log(`Fortune App Fetch Error: ${err}`);
-      return err;
+      reject(err);
+    })
+    .then((response) => {
+      // Returns in the form of ['Text'], slice the braces.
+      const horoscope = response.horoscope.slice(2,-2);
+      console.log(`Fortune Result: ${horoscope}`)
+      resolve(horoscope);
+    });
   });
 }
 

@@ -23,6 +23,7 @@ const moment = require('moment');
 const weatherApi = require('./apps/weather');
 const newsApi = require('./apps/news');
 const fortuneApi = require('./apps/fortune');
+const fetch = require('node-fetch');
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
@@ -38,24 +39,33 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     agent.add(`Welcome to my agent! Current time is ${timestamp}`);
   }
 
-  function fallback (agent) {
+  function fallback(agent) {
     agent.add(`I didn't understand`);
     agent.add(`I'm sorry, can you try again?`);
   }
 
-  function fortune (agent) {
+  const fortune = (agent) => {
     const { sunsign } = parameters;
     // TODO: create response
-    agent.add('This is a placeholder for horoscope');
+
+    return fortuneApi.get(sunsign)
+      .then(
+        (data)=> {
+          agent.add(data);
+        },
+        (err) => {
+          agent.add(err);
+        }
+      );
   }
 
-  function news (agent) {
+  function news(agent) {
     const { query } = parameters;
     // TODO: create response
     agent.add('This is a placeholder for news');
   }
 
-  function trivia (agent) {
+  function trivia(agent) {
     // TODO: create response
     // Create a list using google assistant list
     // with 4 choices being the answers to the multiple choice question
@@ -73,16 +83,16 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     if (date === '') {
       date = 'today';
     }
-    try {
-      weatherApi.getWeather(query, date).then((output) => {
+    
+    return weatherApi.getWeather(query, date)
+      .then((output) => {
         console.log(`Weather API Response: ${output}`);
         agent.add(output);
-      });
-    } 
-    catch(err) {
+      })
+      .catch(err => {
       console.log(`Weather App Error: ${err}`);
       agent.add( `I don't know the weather at ${city}, but I hope it's good!`);
-    };
+    });
   }
 
   // Run the proper function handler based on the matched Dialogflow intent name

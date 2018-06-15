@@ -19,14 +19,22 @@ var Sunsigns = [
 ];
 var get = function (sign) {
     if (!Sunsigns.includes(sign)) {
-        return 'Fortune App Error: Unknown sunsign';
+        throw "Fortune App Error: Unknown sunsign, " + sign;
     }
     var url = "https://" + host + path + sign;
-    return node_fetch_1.default(url)
-        .then(function (res) { return res.json(); })
-        .catch(function (err) {
-        console.log("Fortune App Fetch Error: " + err);
-        return err;
+    return new Promise(function (resolve, reject) {
+        node_fetch_1.default(url)
+            .then(function (res) { return res.json(); })
+            .catch(function (err) {
+            console.log("Fortune App Fetch Error: " + err);
+            reject(err);
+        })
+            .then(function (response) {
+            // Returns in the form of ['Text'], slice the braces.
+            var horoscope = response.horoscope.slice(2, -2);
+            console.log("Fortune Result: " + horoscope);
+            resolve(horoscope);
+        });
     });
 };
 module.exports.get = get;
