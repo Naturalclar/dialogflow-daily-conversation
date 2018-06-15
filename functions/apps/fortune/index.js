@@ -18,9 +18,6 @@ var Sunsigns = [
     'Capricorn'
 ];
 var get = function (sign) {
-    if (!Sunsigns.includes(sign)) {
-        throw "Fortune App Error: Unknown sunsign, " + sign;
-    }
     var url = "https://" + host + path + sign;
     return new Promise(function (resolve, reject) {
         node_fetch_1.default(url)
@@ -30,10 +27,10 @@ var get = function (sign) {
             reject(err);
         })
             .then(function (response) {
-            // Returns in the form of ['Text'], slice the braces.
-            var horoscope = response.horoscope.slice(2, -2);
-            console.log("Fortune Result: " + horoscope);
-            resolve(horoscope);
+            if (response.horoscope === "[]") {
+                reject("Fortune App Error: Unknown sunsign, " + sign);
+            }
+            resolve(response);
         });
     });
 };

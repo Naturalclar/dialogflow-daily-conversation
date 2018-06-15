@@ -18,10 +18,6 @@ const Sunsigns = [
 ]
 
 const get = (sign: string):Promise<string> => {
-  if (!Sunsigns.includes(sign)){
-    throw `Fortune App Error: Unknown sunsign, ${sign}`;
-  }
-
   const url = `https://${host}${path}${sign}`;
 
   return new Promise((resolve, reject) => {
@@ -32,10 +28,10 @@ const get = (sign: string):Promise<string> => {
       reject(err);
     })
     .then((response) => {
-      // Returns in the form of ['Text'], slice the braces.
-      const horoscope = response.horoscope.slice(2,-2);
-      console.log(`Fortune Result: ${horoscope}`)
-      resolve(horoscope);
+      if (response.horoscope==="[]"){
+        reject(`Fortune App Error: Unknown sunsign, ${sign}`)
+      }
+      resolve(response);
     });
   });
 }
