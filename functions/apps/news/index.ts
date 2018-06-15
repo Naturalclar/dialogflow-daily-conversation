@@ -1,5 +1,8 @@
 import fetch from 'node-fetch';
-const apikey = 'ad93155549404d5ca015304a14af0154';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+const apikey = process.env.NEWS_API_KEY;
 const host = 'newsapi.org';
 
 const getNews = (query:string) => {

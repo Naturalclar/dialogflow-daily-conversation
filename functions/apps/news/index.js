@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var node_fetch_1 = require("node-fetch");
-var apikey = 'ad93155549404d5ca015304a14af0154';
+var dotenv = require("dotenv");
+dotenv.config();
+var apikey = process.env.NEWS_API_KEY;
 var host = 'newsapi.org';
 var getNews = function (query) {
     var path = "/v2/everything?q=" + query + "&apiKey=" + apikey;

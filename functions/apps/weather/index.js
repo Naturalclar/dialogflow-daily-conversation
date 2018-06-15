@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var node_fetch_1 = require("node-fetch");
-var wwoApiKey = "0a6aca0d4c5e4b8c8f6201342181605";
+var dotenv = require("dotenv");
+dotenv.config();
+var wwoApiKey = process.env.WEATHER_API_KEY;
 var host = 'api.worldweatheronline.com';
 var getWeather = function (city, date) {
     var path = "/premium/v1/weather.ashx?format=json&num_of_days=1&q=" + encodeURIComponent(city) + "&key=" + wwoApiKey + "&date=" + date;

@@ -1,7 +1,10 @@
 import fetch from 'node-fetch';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-const wwoApiKey = "0a6aca0d4c5e4b8c8f6201342181605";
+const wwoApiKey = process.env.WEATHER_API_KEY;
 const host = 'api.worldweatheronline.com';
+
 
 const getWeather = (city: string, date: string) => {
   const path = `/premium/v1/weather.ashx?format=json&num_of_days=1&q=${encodeURIComponent(city)}&key=${wwoApiKey}&date=${date}`;
