@@ -1,7 +1,7 @@
 const newsApi = require('../news');
 
 test('calls news api without a problem', async () => {
-  const query = 'bitcoin';
+  const query = 'technology';
   expect.assertions(5);
   const data = await newsApi.getNews(query);
   expect(data).toHaveProperty('source');
