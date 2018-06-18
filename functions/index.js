@@ -23,7 +23,6 @@ const moment = require('moment');
 const weatherApi = require('./apps/weather');
 const newsApi = require('./apps/news');
 const fortuneApi = require('./apps/fortune');
-const fetch = require('node-fetch');
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
@@ -68,9 +67,15 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     return newsApi.getNews(query)
       .then(
         (data) => {
-          const newsheader = `Here's an article from ${data.source}, by ${data.author}, titled ${data.title}.`
+          const newsheader = `Here's an article from "${data.source.name}", by "${data.author}", titled "${data.title}".`
           agent.add(newsheader);
           agent.add(data.description);
+          agent.add('Would you like me to navigate to the original source?');
+          agent.setContext({
+            name: 'newsUrl',
+            lifespan: 2,
+            parameters: {url: data.url},
+          });
         },
         (err) => {
           agent.add(err);
