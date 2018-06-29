@@ -5,7 +5,7 @@ var dotenv = require("dotenv");
 dotenv.config();
 var apikey = process.env.NEWS_API_KEY;
 var host = 'newsapi.org';
-var getNews = function (query) {
+var newsApi = function (query) {
     var path = "/v2/everything?q=" + query + "&apiKey=" + apikey;
     var url = "https://" + host + path;
     return new Promise(function (resolve, reject) {
@@ -20,4 +20,4 @@ var getNews = function (query) {
         });
     });
 };
-module.exports.getNews = getNews;
+exports.default = newsApi;

@@ -1,7 +1,7 @@
 const host = 'maps.googleapis.com/maps/api/geocode/json';
 
-const getLocation = () => {
+const locationApi = () => {
   return '-42';
 }
 
-module.exports.getLocation = getLocation;
+export default locationApi;

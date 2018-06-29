@@ -7,7 +7,7 @@ var level = [
     'medium',
     'hard',
 ];
-var get = function (difficulty) {
+var triviaApi = function (difficulty) {
     if (difficulty === void 0) { difficulty = 'easy'; }
     if (!level.includes(difficulty)) {
         return 'Trivia App Error: Invalid difficulty';
@@ -21,4 +21,4 @@ var get = function (difficulty) {
         return err;
     });
 };
-module.exports.get = get;
+exports.default = triviaApi;

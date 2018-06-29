@@ -1,9 +1,9 @@
-const newsApi = require('../news');
+import newsApi from '../news';
 
 test('calls news api without a problem', async () => {
   const query = 'technology';
   expect.assertions(7);
-  const data = await newsApi.getNews(query);
+  const data = await newsApi(query);
   expect(data).toHaveProperty('source');
   expect(data).toHaveProperty('source.id');
   expect(data).toHaveProperty('source.name');

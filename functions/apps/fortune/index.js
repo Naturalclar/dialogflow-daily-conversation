@@ -17,7 +17,7 @@ var Sunsigns = [
     'Sagittarius',
     'Capricorn'
 ];
-var get = function (sign) {
+var fortuneApi = function (sign) {
     var url = "https://" + host + path + sign;
     return new Promise(function (resolve, reject) {
         node_fetch_1.default(url)
@@ -34,4 +34,4 @@ var get = function (sign) {
         });
     });
 };
-module.exports.get = get;
+exports.default = fortuneApi;

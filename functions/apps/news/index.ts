@@ -5,7 +5,7 @@ dotenv.config();
 const apikey = process.env.NEWS_API_KEY;
 const host = 'newsapi.org';
 
-const getNews = (query:string) => {
+const newsApi = (query:string) => {
   const path = `/v2/everything?q=${query}&apiKey=${apikey}`;
   const url = `https://${host}${path}`;
 
@@ -23,4 +23,4 @@ const getNews = (query:string) => {
   });
 }
 
-module.exports.getNews = getNews;
+export default newsApi;

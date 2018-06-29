@@ -18,6 +18,8 @@
     "@types/dotenv": "^4.0.3",
     "@types/node-fetch": "^2.1.1",
     "actions-on-google": "^2.1.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
     "dialogflow": "^0.5.0",
     "dialogflow-fulfillment": "^0.4.1",
     "dotenv": "^6.0.0",
@@ -25,7 +27,8 @@
     "firebase-functions": "^1.0.2",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.17",
-    "node-fetch": "^2.1.2"
+    "node-fetch": "^2.1.2",
+    "yelp-fusion": "^2.0.3"
   },
   "devDependencies": {
     "jest": "^23.1.0",

@@ -17,7 +17,7 @@ const Sunsigns = [
   'Capricorn'
 ]
 
-const get = (sign: string):Promise<string> => {
+const fortuneApi = (sign: string):Promise<string> => {
   const url = `https://${host}${path}${sign}`;
 
   return new Promise((resolve, reject) => {
@@ -36,4 +36,4 @@ const get = (sign: string):Promise<string> => {
   });
 }
 
-module.exports.get = get;
+export default fortuneApi;

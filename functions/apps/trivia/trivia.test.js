@@ -1,8 +1,8 @@
-const triviaApi = require('../trivia');
+import triviaApi from '../trivia';
 
 test('calls trivia api without a problem', async () => {
   expect.assertions(7);
-  const data = await triviaApi.get();
+  const data = await triviaApi();
   expect(data).toHaveProperty('results');
   expect(data.results[0]).toHaveProperty('category');
   expect(data.results[0]).toHaveProperty('difficulty', 'easy');
@@ -15,13 +15,13 @@ test('calls trivia api without a problem', async () => {
 
 test('able to choose different difficulty', async () => {
   expect.assertions(2);
-  const data = await triviaApi.get('medium');
+  const data = await triviaApi('medium');
   expect(data).toHaveProperty('results');
   expect(data.results[0]).toHaveProperty('difficulty', 'medium');
 });
 
 test('rejects call if difficulty is invalid', async () => {
   expect.assertions(1);
-  const data = await triviaApi.get('foo');
+  const data = await triviaApi('foo');
   expect(data).toBe('Trivia App Error: Invalid difficulty');
 })

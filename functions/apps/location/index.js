@@ -1,5 +1,7 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var host = 'maps.googleapis.com/maps/api/geocode/json';
-var getLocation = function () {
+var locationApi = function () {
     return '-42';
 };
-module.exports.getLocation = getLocation;
+exports.default = locationApi;

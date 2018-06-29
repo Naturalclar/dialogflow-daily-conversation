@@ -7,7 +7,7 @@ const level = [
   'hard',
 ];
 
-const get = (difficulty:string = 'easy') => {
+const triviaApi = (difficulty:string = 'easy') => {
   if (!level.includes(difficulty)){
     return 'Trivia App Error: Invalid difficulty';
   }
@@ -22,4 +22,4 @@ const get = (difficulty:string = 'easy') => {
     })
 }
 
-module.exports.get = get;
+export default triviaApi;

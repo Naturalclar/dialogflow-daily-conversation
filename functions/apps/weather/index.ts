@@ -6,7 +6,7 @@ const wwoApiKey = process.env.WEATHER_API_KEY;
 const host = 'api.worldweatheronline.com';
 
 
-const getWeather = (city: string, date: string) => {
+const weatherApi = (city: string, date: string) => {
   const path = `/premium/v1/weather.ashx?format=json&num_of_days=1&q=${encodeURIComponent(city)}&key=${wwoApiKey}&date=${date}`;
   const url = `http://${host}${path}`;
 
@@ -36,4 +36,5 @@ const getWeather = (city: string, date: string) => {
       });
   });
 }
-module.exports.getWeather = getWeather;
+
+export default weatherApi;

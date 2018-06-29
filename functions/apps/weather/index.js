@@ -5,7 +5,7 @@ var dotenv = require("dotenv");
 dotenv.config();
 var wwoApiKey = process.env.WEATHER_API_KEY;
 var host = 'api.worldweatheronline.com';
-var getWeather = function (city, date) {
+var weatherApi = function (city, date) {
     var path = "/premium/v1/weather.ashx?format=json&num_of_days=1&q=" + encodeURIComponent(city) + "&key=" + wwoApiKey + "&date=" + date;
     var url = "http://" + host + path;
     return new Promise(function (resolve, reject) {
@@ -28,4 +28,4 @@ var getWeather = function (city, date) {
         });
     });
 };
-module.exports.getWeather = getWeather;
+exports.default = weatherApi;
