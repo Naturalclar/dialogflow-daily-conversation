@@ -16,16 +16,17 @@
 
 'use strict';
 
-const functions = require('firebase-functions');
-const {WebhookClient} = require('dialogflow-fulfillment');
-const moment = require('moment');
-const weatherApi = require('./apps/weather');
-const newsApi = require('./apps/news');
-const fortuneApi = require('./apps/fortune');
+import * as functions from 'firebase-functions';
+import { WebhookClient } from 'dialogflow-fulfillment';
+import moment from 'moment';
+import weatherApi from './apps/weather';
+import newsApi from './apps/news';
+import fortuneApi, { getSunsign } from './apps/fortune';
+import yelpApi from './apps/yelp';
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
-exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
+export default functions.https.onRequest((request, response) => {
   const agent = new WebhookClient({ request, response });
   console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
@@ -43,18 +44,22 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   }
 
   const fortune = (agent) => {
-    const { sunsign } = parameters;
+    const { Date_Months : month, Date_Days: day  } = parameters;
     // TODO: create response
+    const dayNum = parseInt(day,10);
+    const sunsign = getSunsign(month,dayNum);
 
     return fortuneApi(sunsign)
       .then(
         (data)=> {     
            // Returns in the form of ['Text'], slice the braces.
           const horoscope = data.horoscope.slice(2,-2);
-          console.log(`Fortune Result: ${horoscope}`)
+          console.log(`Fortune Result: ${horoscope}`);
+          agent.add(`I see, your sunsign is ${sunsign}, here is your horoscope for today`);
           agent.add(horoscope);
         },
         (err) => {
+          console.log(`Fortune Error: ${err}`);
           agent.add(err);
         }
       );
@@ -116,13 +121,32 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     });
   }
 
+  function yelp (agent) {
+    const { Food_Category : term, 'geo-city' : location } = parameters;
+    console.log(`${term}, ${location}`);
+    return yelpApi.search({term, location,limit:1})
+      .then((data) => {
+        const { name, rating, location: address } = data.jsonBody.businesses[0];
+        agent.add(`Here's a suggestion for ${term} near ${location}`);
+        agent.add(`${name} has ${rating} star ratings`);
+        agent.add(`It is located at ${address.display_address}`);
+        return;
+      })
+      .catch((err) => {
+        agent.add(`Oops, something went wrong!: ${err}`)
+        return;
+      });
+  }
+
   // Run the proper function handler based on the matched Dialogflow intent name
   let intentMap = new Map();
   intentMap.set('Default Welcome Intent', welcome);
   intentMap.set('Default Fallback Intent', fallback);
-  intentMap.set('Get Weather', weather);
+  intentMap.set('Weather.getWeather', weather);
   intentMap.set('Get News', news);
-  intentMap.set('Get Fortune', fortune);
+  intentMap.set('Fortune.GetBirthday', fortune);
   intentMap.set('Get Trivia', trivia);
+  intentMap.set('Yelp.search', yelp);
+  intentMap.set('Yelp.location', yelp);
   agent.handleRequest(intentMap);
 });
