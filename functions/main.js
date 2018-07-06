@@ -23,6 +23,7 @@ import weatherApi from './apps/weather';
 import newsApi from './apps/news';
 import fortuneApi, { getSunsign } from './apps/fortune';
 import yelpApi from './apps/yelp';
+import coinApi from './apps/coin';
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
@@ -43,9 +44,27 @@ export default functions.https.onRequest((request, response) => {
     agent.add(`I'm sorry, can you try again?`);
   }
 
+
+  const coin = (agent) => {
+    const { Crypto_Type: type } = parameters;
+
+    return coinApi(type)
+      .then(
+        (data)=> {
+          const { asset_id_base, asset_id_quote, rate } = data;
+          // Create response for chatbot. reduce the decimal place to 4 decimal places.
+          agent.add(`The current price of ${asset_id_base} is ${rate.toFixed(4)} ${asset_id_quote}.`);
+        },
+        (err) => {
+          console.log(`Coin Error: ${err}`);
+          agent.add(err);
+        }
+      )
+
+  }
+
   const fortune = (agent) => {
     const { Date_Months : month, Date_Days: day  } = parameters;
-    // TODO: create response
     const dayNum = parseInt(day,10);
     const sunsign = getSunsign(month,dayNum);
 
@@ -74,7 +93,8 @@ export default functions.https.onRequest((request, response) => {
           const source = `Here's an article from "${data.source.name}"`;
           const author =  data.author ? `, written by "${data.author}` : '';
           const title = data.title ? `, titled "${data.title}` : '';
-          const newsheader = `${source}${author}${title}.`;
+          const description = data.description ? `Here's the beggining snippit of the article.` : '';
+          const newsheader = `${source}${author}${title}. ${description}`;
 
           agent.add(newsheader);
           agent.add(data.description);
@@ -128,7 +148,7 @@ export default functions.https.onRequest((request, response) => {
       .then((data) => {
         const { name, rating, location: address } = data.jsonBody.businesses[0];
         agent.add(`Here's a suggestion for ${term} near ${location}`);
-        agent.add(`${name} has ${rating} star ratings`);
+        agent.add(`${name} has ${rating} star ratings on Yelp.`);
         agent.add(`It is located at ${address.display_address}`);
         return;
       })
@@ -148,5 +168,6 @@ export default functions.https.onRequest((request, response) => {
   intentMap.set('Get Trivia', trivia);
   intentMap.set('Yelp.search', yelp);
   intentMap.set('Yelp.location', yelp);
+  intentMap.set('Coin.getRate', coin);
   agent.handleRequest(intentMap);
 });
