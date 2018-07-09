@@ -45,6 +45,7 @@ export default functions.https.onRequest((request, response) => {
     agent.add(`I'm sorry, can you try again?`);
   }
 
+  // Google Map API - Gets distance and driving duration to a specific location
   const location = (agent) => {
     // TODO: allow origin to be locations other than 1 Circle Star Way
     const { location } = parameters;
@@ -71,6 +72,7 @@ export default functions.https.onRequest((request, response) => {
   }
 
 
+  // CoinAPI - gets the current rate of cryptocurrency, in USD
   const coin = (agent) => {
     const { Crypto_Type: type } = parameters;
 
@@ -89,6 +91,7 @@ export default functions.https.onRequest((request, response) => {
 
   }
 
+  // FortuneAPI - performs a daily horoscope, based on birthday.
   const fortune = (agent) => {
     const { Date_Months : month, Date_Days: day  } = parameters;
     const dayNum = parseInt(day,10);
@@ -110,9 +113,9 @@ export default functions.https.onRequest((request, response) => {
       );
   }
 
+  // NewsAPI - gets the latest news of a given query.
   function news(agent) {
     const { query } = parameters;
-    // TODO: create response
     return newsApi(query)
       .then(
         (data) => {
@@ -137,6 +140,7 @@ export default functions.https.onRequest((request, response) => {
       )
   }
 
+  // Trivia API - creates a multiple choise question for a little entertainment
   function trivia(agent) {
     // TODO: create response
     // Create a list using google assistant list
@@ -145,6 +149,7 @@ export default functions.https.onRequest((request, response) => {
     agent.add('This is a placeholder for trivia');
   }
 
+  // WeatherAPI - retrieves the weather of a speciic location.
   function weather (agent) {
     console.log(`Intent: GetWeather`);
     let {date} = parameters;
@@ -167,6 +172,7 @@ export default functions.https.onRequest((request, response) => {
     });
   }
 
+  // Yelp API - provides a restaurant recommendation for given area.
   function yelp (agent) {
     const { Food_Category : term, 'geo-city' : location } = parameters;
     console.log(`${term}, ${location}`);
