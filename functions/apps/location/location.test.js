@@ -11,6 +11,4 @@ test('calls location api without a problem', async () => {
   expect(data.routes[0].legs[0]).toHaveProperty('duration');
   expect(data.routes[0].legs[0]).toHaveProperty('end_address','San Francisco International Airport (SFO), San Francisco, CA 94128, USA');
   expect(data.routes[0].legs[0]).toHaveProperty('start_address','1 Circle Star Way, San Carlos, CA 94070, USA');
-
-  console.log(data.routes[0].legs);
 });

@@ -24,6 +24,7 @@ import newsApi from './apps/news';
 import fortuneApi, { getSunsign } from './apps/fortune';
 import yelpApi from './apps/yelp';
 import coinApi from './apps/coin';
+import locationApi from './apps/location';
 
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
 
@@ -42,6 +43,31 @@ export default functions.https.onRequest((request, response) => {
   function fallback(agent) {
     agent.add(`I didn't understand`);
     agent.add(`I'm sorry, can you try again?`);
+  }
+
+  const location = (agent) => {
+    // TODO: allow origin to be locations other than 1 Circle Star Way
+    const { location } = parameters;
+    let destination = '';
+    for (const key in location){
+      destination += `${location[key]} `
+    };
+    const origin = '1 Circle Star Way';
+
+
+    return locationApi(origin, destination)
+      .then(
+        (data)=> {
+          const { distance, duration } = data.routes[0].legs[0];
+          agent.add(`The distance from here to ${destination} is ${distance.text}les`);
+          agent.add(`It is about ${duration.text} drive from here`);
+        
+        },
+        (err) => {
+          console.log(`Location Err: ${err}`);
+          agent.add(err);
+        }
+      )
   }
 
 
@@ -169,5 +195,6 @@ export default functions.https.onRequest((request, response) => {
   intentMap.set('Yelp.search', yelp);
   intentMap.set('Yelp.location', yelp);
   intentMap.set('Coin.getRate', coin);
+  intentMap.set('Location.distance', location);
   agent.handleRequest(intentMap);
 });
