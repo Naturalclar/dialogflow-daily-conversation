@@ -19,11 +19,33 @@ const weatherApi = (city: string, date: string) => {
         reject(err);
       })
       .then((response) => {
+        // typecheck
+        if (response['data'] === undefined 
+        || response['data']['weather'] === undefined 
+        || response['data']['request'] === undefined
+        || response['data']['current_condition'] === undefined
+      ) {
+          reject(`Sorry, I was unable to get the weather information. Please try again later.`);
+          return;
+        }
+
+
         let forecast = response['data']['weather'][0];
         let location = response['data']['request'][0];
         let conditions = response['data']['current_condition'][0];
-        let currentConditions = conditions['weatherDesc'][0]['value'];
   
+        if (forecast === undefined || location === undefined || conditions === undefined) {
+          reject(`Sorry, I was unable to get the weather information. Please try again later.`);
+          return;
+        }
+
+        let currentConditions = conditions['weatherDesc'][0]['value'];
+
+        if (currentConditions === undefined){
+          reject(`Sorry, I was unable to get the weather information. Please try again later.`);
+          return;
+        }
+
         // Line spoken by Pepper
         const pepper = `The weather in ${location['type']} of ${location['query']} on ${forecast['date']} is 
         ${currentConditions}, with a projected high of ${forecast['maxtempF']} degrees farenheit and a 
@@ -33,6 +55,7 @@ const weatherApi = (city: string, date: string) => {
         const display = pepper.replace(/degrees farenheit/g, 'F');
         
         resolve (`${pepper}||${display}`);
+        return;
       });
   });
 }

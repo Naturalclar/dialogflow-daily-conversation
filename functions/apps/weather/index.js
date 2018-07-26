@@ -16,15 +16,32 @@ var weatherApi = function (city, date) {
             reject(err);
         })
             .then(function (response) {
+            // typecheck
+            if (response['data'] === undefined
+                || response['data']['weather'] === undefined
+                || response['data']['request'] === undefined
+                || response['data']['current_condition'] === undefined) {
+                reject("Sorry, I was unable to get the weather information. Please try again later.");
+                return;
+            }
             var forecast = response['data']['weather'][0];
             var location = response['data']['request'][0];
             var conditions = response['data']['current_condition'][0];
+            if (forecast === undefined || location === undefined || conditions === undefined) {
+                reject("Sorry, I was unable to get the weather information. Please try again later.");
+                return;
+            }
             var currentConditions = conditions['weatherDesc'][0]['value'];
+            if (currentConditions === undefined) {
+                reject("Sorry, I was unable to get the weather information. Please try again later.");
+                return;
+            }
             // Line spoken by Pepper
             var pepper = "The weather in " + location['type'] + " of " + location['query'] + " on " + forecast['date'] + " is \n        " + currentConditions + ", with a projected high of " + forecast['maxtempF'] + " degrees farenheit and a \n        low of " + forecast['mintempF'] + " degrees farenheit.";
             // Value displayed on the screen
             var display = pepper.replace(/degrees farenheit/g, 'F');
             resolve(pepper + "||" + display);
+            return;
         });
     });
 };

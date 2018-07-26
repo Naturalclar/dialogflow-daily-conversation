@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-//import maps from '@google/maps';
 var node_fetch_1 = require("node-fetch");
 var dotenv = require("dotenv");
 dotenv.config();
 var host = 'maps.googleapis.com';
 var path = '/maps/api/directions/json';
 var apiKey = process.env.GOOGLE_API_KEY;
+//TODO: replace fetch with google-map-service from @google/maps library
 var locationApi = function (origin, destination) {
     var url = "https://" + host + path + "?origin=" + origin + "&destination=" + destination + "&key=" + apiKey;
     return new Promise(function (resolve, reject) {
