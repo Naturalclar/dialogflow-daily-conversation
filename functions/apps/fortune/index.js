@@ -27,6 +27,9 @@ var fortuneApi = function (sign) {
             reject(err);
         })
             .then(function (response) {
+            if (response === undefined) {
+                reject('Fortune App Error: Empty response');
+            }
             if (response.horoscope === "[]") {
                 reject("Fortune App Error: Unknown sunsign, " + sign);
             }

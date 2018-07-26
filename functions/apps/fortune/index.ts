@@ -28,6 +28,9 @@ const fortuneApi = (sign: string):Promise<string> => {
       reject(err);
     })
     .then((response) => {
+      if (response === undefined){
+        reject('Fortune App Error: Empty response');
+      }
       if (response.horoscope==="[]"){
         reject(`Fortune App Error: Unknown sunsign, ${sign}`)
       }
